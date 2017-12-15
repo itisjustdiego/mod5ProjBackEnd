@@ -8,7 +8,8 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def create
-    user = User.create(username: params[:username], password: params[:password], zipcode: params[:zipcode], main_character: params[:main_character], skill: params[:skill])
+    # user = User.create(username: params[:username], password: params[:password], zipcode: params[:zipcode], main_character: params[:main_character], skill: params[:skill])
+    user = User.create(user_params)
     render json:user
   end
 
@@ -25,6 +26,12 @@ class Api::V1::UsersController < ApplicationController
 
   def destroy
 
+  end
+
+  private
+
+  def user_params
+    params.require(:user).permit(:username, :password, :zipcode, :main_character, :skill)
   end
 
 end
