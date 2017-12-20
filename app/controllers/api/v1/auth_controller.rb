@@ -1,24 +1,30 @@
 class Api::V1::AuthController < ApplicationController
 
-  def show
-    if current_user
-      render json: {
-        id: current_user.id,
-        user_name: current_user.user_name
-      }
+  def create
+    @user = User.find_by(username: params[:user][:username])
+    if @user && @user.authenticate(params[:user][:password])
+      token = JWT.encode({user_id: @user.id}, ENV['secret_key_base'], ENV['ALGORITHM'])
+      render json: {id: @user.id, username: @user.username, token: token}
+    else
+      render json: {error: "Error signing in."}
     end
   end
 
-  def create
-    #
-    user = User.find_by(user_name: params[:user_name])
-    if user && user.authenticate(params[:password])
-      payload = {user_id: user.id}
-      token = issue_token(payload)
-      render json: { id: user.id, user_name: user.user_name, jwt: token }
+  def show
+    token = request.headers['token']
+    decoded = JWT.decode(token, ENV['secret_key_base'], ENV['ALGORITHM'])
+    @user = User.find_by(id: decoded.first['user_id'])
+    if @user
+      render json: @user
     else
-      render json: { error: "kennith"}
+      render json: {error: 'No user found.'}
     end
+  end
+
+  private
+
+  def user_params
+    params.require(:user).permit(:username, :password)
   end
 
 end

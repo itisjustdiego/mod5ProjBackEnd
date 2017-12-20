@@ -3,17 +3,17 @@ class Api::V1::UsersController < ApplicationController
     render json: User.all
   end
 
-  def show
-
-  end
-
   def create
-    # user = User.create(username: params[:username], password: params[:password], zipcode: params[:zipcode], main_character: params[:main_character], skill: params[:skill])
-    user = User.create(user_params)
-    render json:user
-  end
-
-  def edit
+   @user = User.new(user_params)
+   if @user.valid?
+     @user.save
+     if @user && @user.authenticate(params[:user][:password])
+       token = JWT.encode({user_id: @user.id}, ENV['secret_key_base'], ENV['ALGORITHM'])
+       render json: {id: @user.id, username: @user.username, token: token}
+     end
+   else
+     render json: {error: 'Error creating new user.'}
+   end
 
   end
 
@@ -22,10 +22,6 @@ class Api::V1::UsersController < ApplicationController
     user.update(username: params[:username], zipcode: params[:zipcode], main_character: params[:main_character], skill: params[:skill])
     user.save
     render json:user
-  end
-
-  def destroy
-
   end
 
   private

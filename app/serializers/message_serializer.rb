@@ -1,6 +1,4 @@
 class MessageSerializer < ActiveModel::Serializer
-  attributes :user, :content
-  def user
-    object.user
-  end
+  attributes :sender_id, :receiver_id, :content
+
 end
