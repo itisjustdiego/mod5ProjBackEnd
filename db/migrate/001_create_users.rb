@@ -6,6 +6,8 @@ class CreateUsers < ActiveRecord::Migration[5.1]
       t.integer :zipcode
       t.string :main_character
       t.string :skill
+      t.string :lat
+      t.string :lng
     end
   end
 end
